@@ -17,10 +17,11 @@ To install lua_stb, you need a C compiler and Lua >= 5.3. You can use `make` to 
 ```bash
 $ git clone https://github.com/Nuctori/lua_stb
 $ cd lua_stb
+$ make clone
 $ make build
 ```
 
-This will install the library in Lua's default path. You can change the installation directory by editing the `config` file.
+This will build the library lua_stb.so in the lua_stb path. You need to install it in your lua path.
 
 ## Usage
 
