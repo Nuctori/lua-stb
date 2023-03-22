@@ -55,9 +55,19 @@ local odata = imageR:resize(data, newW, newH, n);
 
 imageW:write_png("out.png", newW, newH, n, odata, newW * n)
 -- lua-stb alse supports exporting to other file formats
--- imageW:write_bmp("out.bmp", newW, newH, n, odata, newW * n)
--- imageW:write_tga("out.tga", newW, newH, n, odata, newW * n)
--- imageW:write_jpg("out.jpg", newW,newH,n ,odata,new W*n)
+-- imageW:write_bmp("out.bmp", newW, newH, n, odata)
+-- imageW:write_tga("out.tga", newW, newH, n, odata)
+-- imageW:write_jpg("out.jpg", newW, newH, n, odata, quality)
+
+--  write to func 
+imageW:write_png_to_func(w, h, n, data, w * n, function(image)
+    local f = io.open ("write_by_func.png", "w+")
+    f:write(image)
+    f:close()
+end)
+-- imageW:write_bmp_to_func(w, h, n, data, func)
+-- imageW:write_tga_to_func(w, h, n, data, func)
+-- imageW:write_jpg_to_func(w, h, n, data, func, quality)
 
 
 -- lua-stb support load image from menory 

@@ -27,18 +27,22 @@ static inline void lua_stb_register(lua_State *L, const char* meta, luaL_Reg lib
 
 LUAMOD_API int luaopen_lua_stb(lua_State *L) {
   luaL_checkversion(L);
-  // 创建Aoi对象元表
+
   lua_stb_register(L, "__Image__", (luaL_Reg []) {
     {"load", lstbi_load},
     {"load_from_memory", lstbi_load_from_memory},
     {NULL, NULL},
   });
-  // 创建Unit对象元表
+
   lua_stb_register(L, "__ImageWrite__", (luaL_Reg []) {
     {"write_png", lstbi_write_png},
     {"write_bmp", lstbi_write_bmp},
     {"write_tga", lstbi_write_tga},
     {"write_jpg", lstbi_write_jpg},
+    {"write_png_to_func", lstbi_write_png_to_func},
+    {"write_bmp_to_func", lstbi_write_bmp_to_func},
+    {"write_tga_to_func", lstbi_write_tga_to_func},
+    {"write_jpg_to_func", lstbi_write_jpg_to_func},
     {NULL, NULL},
   });
 
@@ -47,7 +51,6 @@ LUAMOD_API int luaopen_lua_stb(lua_State *L) {
     {NULL, NULL},
   });
 
-  // 创建Unit对象元表
   lua_stb_register(L, "__ImageData__", (luaL_Reg []) {
     {"__index", image_data_index},
     {"__newindex",  image_data_newindex},
