@@ -49,6 +49,9 @@
         ImageData* imageData = luaL_checkudata(L, 1, "__ImageData__");
         lua_Integer index = luaL_checkinteger(L, 2);
         lua_Integer value = luaL_checkinteger(L, 3);
+        if (value < 0 || value > 255) {
+            luaL_error(L, "value is out of range[0, 255]");
+        }
         imageData->data[index - 1] = value;
         return 0; 
     }
