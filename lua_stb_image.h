@@ -15,8 +15,12 @@ static int lstbi_load(lua_State* L) {
   const char * filename = luaL_checkstring(L, 2);
   lua_Integer req_comp = luaL_optinteger(L, 3, 0);
 
-  int  w, h, n;
+  int w, h, n;
   unsigned char *data = stbi_load(filename,&w, &h, &n, req_comp);
+  if (data == NULL) {
+    lua_pushstring(L, "image data error");
+    return lua_error(L);
+  }
 
   luaL_setimagedata(L, data, w, h, n);
   stbi_image_free(data);
@@ -32,8 +36,12 @@ static int lstbi_load_from_memory(lua_State* L) {
   const char * imageData = luaL_checklstring (L, 2, &len);
   lua_Integer req_comp = luaL_optinteger(L, 3, 0);
 
-  int  w, h, n;
+  int w, h, n;
   unsigned char *data = stbi_load_from_memory(imageData, len,&w, &h, &n, req_comp);
+  if (data == NULL) {
+    lua_pushstring(L, "image data error");
+    return lua_error(L);
+  }
 
   luaL_setimagedata(L, data, w, h, n);
   stbi_image_free(data);
