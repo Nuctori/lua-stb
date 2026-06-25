@@ -73,6 +73,13 @@ end)
 assert_eq(ok, 1, "write_png_to_func return")
 assert(#chunks > 0, "callback should receive chunks")
 
+local bmp_chunks = {}
+local bmp_ok = image_write:write_bmp_to_func(4, 4, 1, resized, function(chunk)
+  bmp_chunks[#bmp_chunks + 1] = #chunk
+end)
+assert_eq(bmp_ok, 1, "write_bmp_to_func return")
+assert(#bmp_chunks > 0, "bmp callback should receive chunks")
+
 assert_error("boom", function()
   image_write:write_png_to_func(4, 4, 1, resized, 4, function()
     error("boom")
