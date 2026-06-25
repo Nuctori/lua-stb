@@ -22,7 +22,7 @@ jobs:
           sudo apt-get install -y build-essential pkg-config lua${{ matrix.lua_version }} liblua${{ matrix.lua_version }}-dev
 
       - name: Build
-        run: make LUA_VERSION=${{ matrix.lua_version }} LUA_BIN=lua${{ matrix.lua_version }} build
+        run: make LUA_VERSION=${{ matrix.lua_version }} LUA_BIN=lua${{ matrix.lua_version }} CFLAGS='-O2 -std=c99 -Wall -Wextra -Werror' build
 
       - name: Test
-        run: make LUA_VERSION=${{ matrix.lua_version }} LUA_BIN=lua${{ matrix.lua_version }} test
+        run: make LUA_VERSION=${{ matrix.lua_version }} LUA_BIN=lua${{ matrix.lua_version }} CFLAGS='-O2 -std=c99 -Wall -Wextra -Werror' test
