@@ -5,7 +5,7 @@ on:
   pull_request:
 
 jobs:
-  build-and-test:
+  linux:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -26,3 +26,48 @@ jobs:
 
       - name: Test
         run: make LUA_VERSION=${{ matrix.lua_version }} LUA_BIN=lua${{ matrix.lua_version }} CFLAGS='-O2 -std=c99 -Wall -Wextra -Werror' test
+
+  macos:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          brew install pkgconf lua@5.4
+          echo "PKG_CONFIG_PATH=$(brew --prefix lua@5.4)/lib/pkgconfig" >> "$GITHUB_ENV"
+          echo "LUA_BIN=$(brew --prefix lua@5.4)/bin/lua5.4" >> "$GITHUB_ENV"
+
+      - name: Build
+        run: make LUA_VERSION=5.4 LUA_BIN="$LUA_BIN" CFLAGS='-O2 -std=c99 -Wall -Wextra -Werror' build
+
+      - name: Test
+        run: make LUA_VERSION=5.4 LUA_BIN="$LUA_BIN" CFLAGS='-O2 -std=c99 -Wall -Wextra -Werror' test
+
+  windows:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up MSYS2
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: UCRT64
+          update: true
+          install: >-
+            mingw-w64-ucrt-x86_64-gcc
+            mingw-w64-ucrt-x86_64-make
+            mingw-w64-ucrt-x86_64-pkgconf
+            mingw-w64-ucrt-x86_64-lua54
+
+      - name: Build
+        shell: msys2 {0}
+        run: make LUA_VERSION=5.4 LUA_BIN=lua5.4 CFLAGS='-O2 -std=c99 -Wall -Wextra -Werror' build
+
+      - name: Test
+        shell: msys2 {0}
+        run: make LUA_VERSION=5.4 LUA_BIN=lua5.4 CFLAGS='-O2 -std=c99 -Wall -Wextra -Werror' test
