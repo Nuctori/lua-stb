@@ -44,7 +44,7 @@ static int lstbi_load(lua_State* L) {
 static int lstbi_load_from_memory(lua_State* L) {
   luaL_checkudata(L, 1, "__Image__");
   size_t len;
-  const char * imageData = luaL_checklstring (L, 2, &len);
+  const unsigned char *imageData = (const unsigned char *)luaL_checklstring(L, 2, &len);
   lua_Integer req_comp = luaL_optinteger(L, 3, 0);
   if (req_comp < 0 || req_comp > 4) {
     return luaL_error(L, "req_comp must be between 0 and 4");

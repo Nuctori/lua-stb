@@ -31,7 +31,7 @@ static int lstbi_write_png(lua_State* L) {
   lua_Integer y = luaL_checkinteger(L, 4);
   lua_Integer comp = luaL_checkinteger(L, 5);
   ImageData* imageData = lua_stb_check_image_data(L, 6);
-  const char* data = imageData->data;
+  const unsigned char *data = imageData->data;
   lua_Integer stride_bytes = luaL_checkinteger(L, 7);
   lua_stb_check_write_dims(L, x, y, comp);
   size_t min_stride = lua_stb_checked_row_stride(L, x, comp);
@@ -50,7 +50,7 @@ static int lstbi_write_bmp(lua_State* L) {
   lua_Integer y = luaL_checkinteger(L, 4);
   lua_Integer comp = luaL_checkinteger(L, 5);
   ImageData* imageData = lua_stb_check_image_data(L, 6);
-  const char* data = imageData->data;
+  const unsigned char *data = imageData->data;
   lua_stb_check_write_dims(L, x, y, comp);
   if (comp > 4) {
     return luaL_error(L, "invalid image write arguments");
@@ -67,7 +67,7 @@ static int lstbi_write_tga(lua_State* L) {
   lua_Integer y = luaL_checkinteger(L, 4);
   lua_Integer comp = luaL_checkinteger(L, 5);
   ImageData* imageData = lua_stb_check_image_data(L, 6);
-  const char* data = imageData->data;
+  const unsigned char *data = imageData->data;
   lua_stb_check_write_dims(L, x, y, comp);
   if (comp > 4) {
     return luaL_error(L, "invalid image write arguments");
@@ -84,7 +84,7 @@ static int lstbi_write_jpg(lua_State* L) {
   lua_Integer y = luaL_checkinteger(L, 4);
   lua_Integer comp = luaL_checkinteger(L, 5);
   ImageData* imageData = lua_stb_check_image_data(L, 6);
-  const char* data = imageData->data;
+  const unsigned char *data = imageData->data;
   lua_Integer quality = luaL_checkinteger(L, 7);
   lua_stb_check_write_dims(L, x, y, comp);
   if (comp > 4 || quality < 1 || quality > 100) {
