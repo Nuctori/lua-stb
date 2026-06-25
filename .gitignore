@@ -1,0 +1,15 @@
+.build/
+work/
+*.o
+*.so
+*.dll
+*.dylib
+*.out
+lua_stb.so
+out.png
+out2.png
+output.png
+output_callback.png
+write_by_func.png
+tests_tmp_out.png
+tests/tmp/
