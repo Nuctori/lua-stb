@@ -95,6 +95,14 @@ If you use LuaRocks, install directly from the included rockspec:
 luarocks make lua-stb-scm-1.rockspec
 ```
 
+Tagged GitHub releases also publish prebuilt module artifacts for the
+supported OS and Lua version combinations covered by CI. Use the release
+asset that matches your platform, then drop the built module next to your
+Lua package path or install it with the same layout you use for local builds.
+
+Release builds are validated on Linux, macOS, and Windows before the assets
+are published.
+
 ## License
 
 MIT. See [LICENSE](LICENSE).

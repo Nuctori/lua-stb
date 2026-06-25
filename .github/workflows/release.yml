@@ -1,0 +1,106 @@
+name: release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    env:
+      LUA_BIN: ${{ matrix.lua_bin }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            lua_version: "5.3"
+            lua_bin: lua5.3
+            target_file: lua_stb.so
+            asset_name: lua-stb-linux-lua5.3.so
+          - os: ubuntu-latest
+            lua_version: "5.4"
+            lua_bin: lua5.4
+            target_file: lua_stb.so
+            asset_name: lua-stb-linux-lua5.4.so
+          - os: macos-latest
+            lua_version: "5.4"
+            lua_bin: lua5.4
+            target_file: lua_stb.so
+            asset_name: lua-stb-macos-lua5.4.so
+          - os: windows-latest
+            lua_version: "5.4"
+            lua_bin: lua5.4
+            target_file: lua_stb.dll
+            asset_name: lua-stb-windows-lua5.4.dll
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential pkg-config lua${{ matrix.lua_version }} liblua${{ matrix.lua_version }}-dev
+
+      - name: Install dependencies
+        if: runner.os == 'macOS'
+        run: |
+          brew install pkgconf lua@5.4
+          echo "PKG_CONFIG_PATH=$(brew --prefix lua@5.4)/lib/pkgconfig" >> "$GITHUB_ENV"
+          echo "LUA_BIN=$(brew --prefix lua@5.4)/bin/lua5.4" >> "$GITHUB_ENV"
+
+      - name: Set up MSYS2
+        if: runner.os == 'Windows'
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: UCRT64
+          update: true
+          install: >-
+            mingw-w64-ucrt-x86_64-gcc
+            mingw-w64-ucrt-x86_64-make
+            mingw-w64-ucrt-x86_64-pkgconf
+            mingw-w64-ucrt-x86_64-lua54
+
+      - name: Build
+        if: runner.os != 'Windows'
+        run: make LUA_VERSION=${{ matrix.lua_version }} LUA_BIN="$LUA_BIN" CFLAGS='-O2 -std=c99 -Wall -Wextra -Werror' build
+
+      - name: Build
+        if: runner.os == 'Windows'
+        shell: msys2 {0}
+        run: mingw32-make LUA_VERSION=5.4 LUA_BIN="$LUA_BIN" CFLAGS='-O2 -std=c99 -Wall -Wextra -Werror' build
+
+      - name: Test
+        if: runner.os != 'Windows'
+        run: make LUA_VERSION=${{ matrix.lua_version }} LUA_BIN="$LUA_BIN" CFLAGS='-O2 -std=c99 -Wall -Wextra -Werror' test
+
+      - name: Test
+        if: runner.os == 'Windows'
+        shell: msys2 {0}
+        run: mingw32-make LUA_VERSION=5.4 LUA_BIN="$LUA_BIN" CFLAGS='-O2 -std=c99 -Wall -Wextra -Werror' test
+
+      - name: Package artifact
+        if: runner.os != 'Windows'
+        run: |
+          mkdir -p dist
+          cp ${{ matrix.target_file }} dist/${{ matrix.asset_name }}
+
+      - name: Package artifact
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force dist | Out-Null
+          Copy-Item ${{ matrix.target_file }} dist/${{ matrix.asset_name }}
+
+      - name: Publish release asset
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/${{ matrix.asset_name }}
