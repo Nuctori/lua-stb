@@ -66,8 +66,8 @@ jobs:
 
       - name: Build
         shell: msys2 {0}
-        run: make LUA_VERSION=5.4 LUA_BIN=lua5.4 CFLAGS='-O2 -std=c99 -Wall -Wextra -Werror' build
+        run: mingw32-make LUA_VERSION=5.4 LUA_BIN=lua5.4 CFLAGS='-O2 -std=c99 -Wall -Wextra -Werror' build
 
       - name: Test
         shell: msys2 {0}
-        run: make LUA_VERSION=5.4 LUA_BIN=lua5.4 CFLAGS='-O2 -std=c99 -Wall -Wextra -Werror' test
+        run: mingw32-make LUA_VERSION=5.4 LUA_BIN=lua5.4 CFLAGS='-O2 -std=c99 -Wall -Wextra -Werror' test
