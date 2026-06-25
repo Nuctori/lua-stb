@@ -15,10 +15,6 @@ static inline void lua_stb_register(lua_State *L, const char* meta, luaL_Reg lib
   lua_pushstring (L, "__index");
   lua_pushvalue(L, -2);
   lua_rawset(L, -3);
-  
-  lua_pushliteral(L, "__mode");
-  lua_pushliteral(L, "kv");
-  lua_rawset(L, -3);
 
   luaL_setfuncs(L, libs, 0);
 
@@ -92,6 +88,8 @@ LUAMOD_API int luaopen_lua_stb(lua_State *L) {
   lua_stb_register(L, "__Image__", (luaL_Reg []) {
     {"load", lstbi_load},
     {"load_from_memory", lstbi_load_from_memory},
+    {"info", lstbi_info},
+    {"info_from_memory", lstbi_info_from_memory},
     {NULL, NULL},
   });
 
@@ -104,6 +102,10 @@ LUAMOD_API int luaopen_lua_stb(lua_State *L) {
     {"write_bmp_to_func", lstbi_write_bmp_to_func},
     {"write_tga_to_func", lstbi_write_tga_to_func},
     {"write_jpg_to_func", lstbi_write_jpg_to_func},
+    {"write_png_to_string", lstbi_write_png_to_string},
+    {"write_bmp_to_string", lstbi_write_bmp_to_string},
+    {"write_tga_to_string", lstbi_write_tga_to_string},
+    {"write_jpg_to_string", lstbi_write_jpg_to_string},
     {NULL, NULL},
   });
 

@@ -1,4 +1,5 @@
 .build/
+.codegraph/
 work/
 *.o
 *.so

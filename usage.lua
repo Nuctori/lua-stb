@@ -6,6 +6,8 @@ local resizer = stb.image_resize
 local data, w, h, n = image:load("input.pgm")
 
 print("loaded:", w, h, n, #data)
+local info_w, info_h, info_n = image:info("input.pgm")
+print("info:", info_w, info_h, info_n)
 
 for x = 1, w do
   local i = (x - 1) * n + 1
@@ -23,9 +25,14 @@ writer:write_png_to_func(resized.w, resized.h, resized.n, resized, resized.w * r
 end)
 file:close()
 
+local png_blob = writer:write_png_to_string(resized.w, resized.h, resized.n, resized, resized.w * resized.n)
+print("png blob bytes:", #png_blob)
+
 local f = assert(io.open("input.pgm", "rb"))
 local memory = f:read("*a")
 f:close()
 
 local data2, w2, h2, n2 = image:load_from_memory(memory)
 print("memory:", w2, h2, n2, #data2)
+local mw, mh, mn = image:info_from_memory(memory)
+print("memory info:", mw, mh, mn)

@@ -36,6 +36,11 @@ assert_eq(data.len, 4, "data.len")
 assert_eq(data[1], 0, "first pixel")
 assert_eq(data[4], 255, "last pixel")
 
+local iw, ih, in_ = image:info("tests/fixture.pgm")
+assert_eq(iw, 2, "info width")
+assert_eq(ih, 2, "info height")
+assert_eq(in_, 1, "info channels")
+
 local forced, fw, fh, fn = image:load("tests/fixture.pgm", 4)
 assert_eq(fw, 2, "forced width")
 assert_eq(fh, 2, "forced height")
@@ -73,12 +78,25 @@ end)
 assert_eq(ok, 1, "write_png_to_func return")
 assert(#chunks > 0, "callback should receive chunks")
 
+local png_blob = image_write:write_png_to_string(4, 4, 1, resized, 4)
+assert_eq(png_blob:sub(1, 8), "\137PNG\r\n\26\n", "png signature")
+
 local bmp_chunks = {}
 local bmp_ok = image_write:write_bmp_to_func(4, 4, 1, resized, function(chunk)
   bmp_chunks[#bmp_chunks + 1] = #chunk
 end)
 assert_eq(bmp_ok, 1, "write_bmp_to_func return")
 assert(#bmp_chunks > 0, "bmp callback should receive chunks")
+
+local bmp_blob = image_write:write_bmp_to_string(4, 4, 1, resized)
+assert_eq(bmp_blob:sub(1, 2), "BM", "bmp signature")
+
+local tga_blob = image_write:write_tga_to_string(4, 4, 1, resized)
+assert(#tga_blob > 0, "tga string should not be empty")
+
+local jpg_blob = image_write:write_jpg_to_string(4, 4, 1, resized, 90)
+assert_eq(string.byte(jpg_blob, 1), 0xFF, "jpg soi byte 1")
+assert_eq(string.byte(jpg_blob, 2), 0xD8, "jpg soi byte 2")
 
 assert_error("boom", function()
   image_write:write_png_to_func(4, 4, 1, resized, 4, function()
@@ -92,5 +110,10 @@ assert_eq(w2, 2, "memory width")
 assert_eq(h2, 2, "memory height")
 assert_eq(n2, 4, "memory channels")
 assert_eq(#data2, 16, "memory len")
+
+local mw, mh, mn = image:info_from_memory(mem)
+assert_eq(mw, 2, "memory info width")
+assert_eq(mh, 2, "memory info height")
+assert_eq(mn, 1, "memory info channels")
 
 print("lua-stb tests passed")

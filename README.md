@@ -39,9 +39,11 @@ The tests use a tiny 2x2 PGM fixture and cover:
 
 - module loading
 - file and memory loading
+- info-only header reads
 - resize
 - bounds checking on image data
 - PNG writing and callback writing
+- string-returning writer helpers
 
 ## Usage
 
@@ -63,6 +65,9 @@ writer:write_png("output.png", bigger.w, bigger.h, bigger.n, bigger, bigger.w * 
 writer:write_png_to_func(bigger.w, bigger.h, bigger.n, bigger, bigger.w * bigger.n, function(chunk)
   io.write(chunk)
 end)
+
+local width, height, channels = image:info("input.pgm")
+local png = writer:write_png_to_string(bigger.w, bigger.h, bigger.n, bigger, bigger.w * bigger.n)
 ```
 
 `ImageData` values support:
@@ -70,6 +75,11 @@ end)
 - 1-based numeric indexing for pixel bytes
 - `w`, `h`, `n`, `len`, and `length` fields
 - `#image_data` for the full byte length
+
+Additional convenience APIs:
+
+- `image:info(path)` and `image:info_from_memory(bytes)` for header-only reads
+- `image_write:write_*_to_string(...)` for returning encoded image data directly
 
 ## Installation
 

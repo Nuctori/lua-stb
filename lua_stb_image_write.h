@@ -11,6 +11,10 @@ typedef struct lua_stb_write_context {
   char error_message[256];
 } lua_stb_write_context;
 
+typedef struct lua_stb_string_context {
+  luaL_Buffer buffer;
+} lua_stb_string_context;
+
 static int lstbi_new_image_write(lua_State* L) {
   lua_newuserdata(L, 1);
   luaL_setmetatable(L, "__ImageWrite__");
@@ -117,6 +121,11 @@ static void write_to_char(void *context, void *data, int size) {
   }
 }
 
+static void write_to_buffer(void *context, void *data, int size) {
+  lua_stb_string_context *ctx = (lua_stb_string_context *)context;
+  luaL_addlstring(&ctx->buffer, (const char *)data, (size_t)size);
+}
+
 static int lstbi_write_png_to_func(lua_State* L) {
   luaL_checkudata(L, 1, "__ImageWrite__");
   lua_Integer x = luaL_checkinteger(L, 2);
@@ -145,6 +154,29 @@ static int lstbi_write_png_to_func(lua_State* L) {
     return luaL_error(L, "png write callback failed");
   }
   lua_pushinteger(L, ret);
+  return 1;
+}
+
+static int lstbi_write_png_to_string(lua_State* L) {
+  luaL_checkudata(L, 1, "__ImageWrite__");
+  lua_Integer x = luaL_checkinteger(L, 2);
+  lua_Integer y = luaL_checkinteger(L, 3);
+  lua_Integer comp = luaL_checkinteger(L, 4);
+  ImageData* imageData = lua_stb_check_image_data(L, 5);
+  lua_Integer stride_bytes = luaL_checkinteger(L, 6);
+  lua_stb_check_write_dims(L, x, y, comp);
+  size_t min_stride = lua_stb_checked_row_stride(L, x, comp);
+  if (comp > 4 || stride_bytes <= 0 || stride_bytes > INT_MAX || (size_t)stride_bytes < min_stride) {
+    return luaL_error(L, "invalid image write arguments");
+  }
+
+  lua_stb_string_context ctx;
+  luaL_buffinit(L, &ctx.buffer);
+  int ret = stbi_write_png_to_func(write_to_buffer, &ctx, x, y, comp, imageData->data, stride_bytes);
+  if (ret == 0) {
+    return luaL_error(L, "png write failed");
+  }
+  luaL_pushresult(&ctx.buffer);
   return 1;
 }
 
@@ -178,6 +210,28 @@ static int lstbi_write_bmp_to_func(lua_State* L) {
   return 1;
 }
 
+static int lstbi_write_bmp_to_string(lua_State* L) {
+  luaL_checkudata(L, 1, "__ImageWrite__");
+
+  lua_Integer x = luaL_checkinteger(L, 2);
+  lua_Integer y = luaL_checkinteger(L, 3);
+  lua_Integer comp = luaL_checkinteger(L, 4);
+  ImageData* imageData = lua_stb_check_image_data(L, 5);
+  lua_stb_check_write_dims(L, x, y, comp);
+  if (comp > 4) {
+    return luaL_error(L, "invalid image write arguments");
+  }
+
+  lua_stb_string_context ctx;
+  luaL_buffinit(L, &ctx.buffer);
+  int ret = stbi_write_bmp_to_func(write_to_buffer, &ctx, x, y, comp, imageData->data);
+  if (ret == 0) {
+    return luaL_error(L, "bmp write failed");
+  }
+  luaL_pushresult(&ctx.buffer);
+  return 1;
+}
+
 static int lstbi_write_tga_to_func(lua_State* L) {
   luaL_checkudata(L, 1, "__ImageWrite__");
 
@@ -205,6 +259,28 @@ static int lstbi_write_tga_to_func(lua_State* L) {
     return luaL_error(L, "tga write callback failed");
   }
   lua_pushinteger(L, ret);
+  return 1;
+}
+
+static int lstbi_write_tga_to_string(lua_State* L) {
+  luaL_checkudata(L, 1, "__ImageWrite__");
+
+  lua_Integer x = luaL_checkinteger(L, 2);
+  lua_Integer y = luaL_checkinteger(L, 3);
+  lua_Integer comp = luaL_checkinteger(L, 4);
+  ImageData* imageData = lua_stb_check_image_data(L, 5);
+  lua_stb_check_write_dims(L, x, y, comp);
+  if (comp > 4) {
+    return luaL_error(L, "invalid image write arguments");
+  }
+
+  lua_stb_string_context ctx;
+  luaL_buffinit(L, &ctx.buffer);
+  int ret = stbi_write_tga_to_func(write_to_buffer, &ctx, x, y, comp, imageData->data);
+  if (ret == 0) {
+    return luaL_error(L, "tga write failed");
+  }
+  luaL_pushresult(&ctx.buffer);
   return 1;
 }
 
@@ -236,5 +312,28 @@ static int lstbi_write_jpg_to_func(lua_State* L) {
     return luaL_error(L, "jpg write callback failed");
   }
   lua_pushinteger(L, ret);
+  return 1;
+}
+
+static int lstbi_write_jpg_to_string(lua_State* L) {
+  luaL_checkudata(L, 1, "__ImageWrite__");
+
+  lua_Integer x = luaL_checkinteger(L, 2);
+  lua_Integer y = luaL_checkinteger(L, 3);
+  lua_Integer comp = luaL_checkinteger(L, 4);
+  ImageData* imageData = lua_stb_check_image_data(L, 5);
+  lua_Integer quality = luaL_checkinteger(L, 6);
+  lua_stb_check_write_dims(L, x, y, comp);
+  if (comp > 4 || quality < 1 || quality > 100) {
+    return luaL_error(L, "invalid image write arguments");
+  }
+
+  lua_stb_string_context ctx;
+  luaL_buffinit(L, &ctx.buffer);
+  int ret = stbi_write_jpg_to_func(write_to_buffer, &ctx, x, y, comp, imageData->data, quality);
+  if (ret == 0) {
+    return luaL_error(L, "jpg write failed");
+  }
+  luaL_pushresult(&ctx.buffer);
   return 1;
 }
